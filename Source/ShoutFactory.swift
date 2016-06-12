@@ -161,26 +161,30 @@ public class ShoutView: UIView {
   
   public func setupFrames() {
     let totalWidth = UIScreen.mainScreen().bounds.width
-
     let offset: CGFloat = UIApplication.sharedApplication().statusBarHidden ? 2.5 : 5
     let textOffsetX: CGFloat = imageView.image != nil ? Dimensions.textOffset : 18
     let imageSize: CGFloat = imageView.image != nil ? Dimensions.imageSize : 0
-
+    
     backgroundView.frame.size = CGSize(width: totalWidth, height: Dimensions.height)
     gestureContainer.frame = CGRect(x: 0, y: Dimensions.height - 20, width: totalWidth, height: 20)
     indicatorView.frame = CGRect(x: (totalWidth - Dimensions.indicatorWidth) / 2,
-      y: Dimensions.height - Dimensions.indicatorHeight - 5, width: Dimensions.indicatorWidth, height: Dimensions.indicatorHeight)
-
-
-    imageView.frame = CGRect(x: Dimensions.imageOffset, y: (Dimensions.height - max(contentHeight, Dimensions.imageSize)) / 2 + offset,
-      width: Dimensions.imageSize, height: Dimensions.imageSize)
+                                 y: Dimensions.height - Dimensions.indicatorHeight - 5, width: Dimensions.indicatorWidth, height: Dimensions.indicatorHeight)
     
-    if let text = subtitleLabel.text where text.isEmpty {
-      titleLabel.center.y = imageView.center.y - 2.5
-      titleLabel.frame.origin.x = Dimensions.textOffset
-    } else {
-      titleLabel.frame.origin = CGPoint(x: Dimensions.textOffset, y: imageView.frame.origin.y + 3)
-      subtitleLabel.frame.origin = CGPoint(x: Dimensions.textOffset, y: CGRectGetMaxY(titleLabel.frame) + 2.5)
+    imageView.frame = CGRect(x: Dimensions.imageOffset, y: (Dimensions.height - imageSize) / 2 + offset,
+                             width: imageSize, height: imageSize)
+    
+    [titleLabel, subtitleLabel].forEach {
+        $0.frame.size.width = totalWidth - imageSize - (Dimensions.imageOffset * 2)
+        $0.sizeToFit()
+    }
+    
+    let textOffsetY = imageView.image != nil ? imageView.frame.origin.x + 3 : textOffsetX
+    
+    titleLabel.frame.origin = CGPoint(x: textOffsetX, y: textOffsetY)
+    subtitleLabel.frame.origin = CGPoint(x: textOffsetX, y: CGRectGetMaxY(titleLabel.frame) + 2.5)
+    
+    if subtitleLabel.text?.isEmpty ?? true {
+        titleLabel.center.y = imageView.center.y - 2.5
     }
   }
   
