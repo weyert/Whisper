@@ -1,9 +1,9 @@
 import UIKit
 
-let shout = ShoutView()
+let shoutView = ShoutView()
 
-public func Shout(announcement: Announcement, to: UIViewController, completion: (() -> ())? = {}) {
-  shout.craft(announcement, to: to, completion: completion)
+public func shout(announcement: Announcement, to: UIViewController, completion: (() -> ())? = {}) {
+  shoutView.craft(announcement, to: to, completion: completion)
 }
 
 public class ShoutView: UIView {
@@ -55,8 +55,7 @@ public class ShoutView: UIView {
     let label = UILabel()
     label.font = FontList.Shout.title
     label.textColor = ColorList.Shout.title
-    label.numberOfLines = 1
-    
+    label.numberOfLines = 2
     return label
   }()
   
@@ -66,7 +65,6 @@ public class ShoutView: UIView {
     label.textColor = ColorList.Shout.subtitle
     label.numberOfLines = 0
     label.lineBreakMode = NSLineBreakMode.ByWordWrapping
-    
     return label
   }()
   
@@ -138,21 +136,15 @@ public class ShoutView: UIView {
     imageView.image = announcement.image
     titleLabel.text = announcement.title
     subtitleLabel.text = announcement.subtitle ?? ""
-    
     if imageView.image == nil { Dimensions.textOffset = 18 }
-    
     displayTimer.invalidate()
     displayTimer = NSTimer.scheduledTimerWithTimeInterval(announcement.duration,
       target: self, selector: #selector(ShoutView.displayTimerDidFire), userInfo: nil, repeats: false)
+
     setupFrames()
   }
   
   public func shout(to controller: UIViewController) {
-    guard let controller = controller.navigationController else {
-      assertionFailure("The controller must contain a navigation bar")
-      return
-    }
-
     let width = UIScreen.mainScreen().bounds.width
     controller.view.addSubview(self)
     
@@ -169,32 +161,17 @@ public class ShoutView: UIView {
   
   public func setupFrames() {
     let totalWidth = UIScreen.mainScreen().bounds.width
-     let offset: CGFloat = UIApplication.sharedApplication().statusBarHidden ? 2.5 : 5
-    
-    [titleLabel, subtitleLabel].forEach {
-      $0.frame.size.width = totalWidth - Dimensions.imageSize - (Dimensions.imageOffset * 2)
-      $0.sizeToFit()
-    }
-    
-    if let text = subtitleLabel.text {
-      let neededDimensions =
-      NSString(string: text).boundingRectWithSize(
-        CGSize(width: subtitleLabel.frame.size.width, height: CGFloat.infinity),
-        options: NSStringDrawingOptions.UsesLineFragmentOrigin,
-        attributes: [NSFontAttributeName: subtitleLabel.font],
-        context: nil
-      )
-      subtitleLabelHeight = CGFloat(neededDimensions.size.height) + 7.5
-    }
-    
-    let contentHeight = self.titleLabel.frame.height + 2.5 + subtitleLabelHeight
-    
-    Dimensions.height += subtitleLabelHeight
-    
+
+    let offset: CGFloat = UIApplication.sharedApplication().statusBarHidden ? 2.5 : 5
+    let textOffsetX: CGFloat = imageView.image != nil ? Dimensions.textOffset : 18
+    let imageSize: CGFloat = imageView.image != nil ? Dimensions.imageSize : 0
+
     backgroundView.frame.size = CGSize(width: totalWidth, height: Dimensions.height)
     gestureContainer.frame = CGRect(x: 0, y: Dimensions.height - 20, width: totalWidth, height: 20)
     indicatorView.frame = CGRect(x: (totalWidth - Dimensions.indicatorWidth) / 2,
       y: Dimensions.height - Dimensions.indicatorHeight - 5, width: Dimensions.indicatorWidth, height: Dimensions.indicatorHeight)
+
+
     imageView.frame = CGRect(x: Dimensions.imageOffset, y: (Dimensions.height - max(contentHeight, Dimensions.imageSize)) / 2 + offset,
       width: Dimensions.imageSize, height: Dimensions.imageSize)
     
